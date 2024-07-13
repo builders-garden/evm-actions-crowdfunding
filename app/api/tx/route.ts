@@ -2,15 +2,20 @@ import { erc20Abi } from "@/lib/contracts/erc20abi";
 import { base, baseSepolia } from "viem/chains";
 import { NextRequest, NextResponse } from "next/server";
 import { createPublicClient, encodeFunctionData, http, parseUnits } from "viem";
-import { NextApiRequest } from "next";
 import { CROWDFUNDING_CONTRACT_ADDRESS, STANDARD_TOKEN_ADDRESS } from "@/lib/constants";
 import { crowdfundingAbi } from "@/lib/contracts/crowdfundingAbi";
 
-export const POST = async (req: NextApiRequest) => {
-  const body = await req.body();
+export const POST = async (req: NextRequest) => {
+  const body = await req.json();
   const { address } = body;
-  // get the tokenAddress, toAddress, amount and chainId from the query parameters
-  const { isRecurring, campaignId, depositAmount, donationTimes, donationIntervals } = req.query;
+  const { searchParams } = new URL(req.url);
+
+  // get the tokenAddress, toAddress, amount and chainId from the urls 
+  const isRecurring = searchParams.get('isRecurring');
+  const campaignId = searchParams.get('campaignId');
+  const depositAmount = searchParams.get('depositAmount');
+  const donationTimes = searchParams.get('donationTimes');
+  const donationIntervals = searchParams.get('donationIntervals');
 
   // Get token decimals
   const publicClient = createPublicClient({ 
