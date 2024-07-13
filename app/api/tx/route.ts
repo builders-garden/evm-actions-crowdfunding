@@ -41,22 +41,16 @@ export const POST = async (req: NextRequest) => {
   // Prepare amount to transfer
   const bigIntAmount = BigInt(parseUnits(depositAmount as string, decimals));
   const totalRecurringAmount = bigIntAmount * BigInt(donationTimes as string);
+  const amountToApprove = isRecurring ? totalRecurringAmount : bigIntAmount;
 
   // Calculate calldata for token approval
-  let approveCalldata;
-  if(isRecurring) {
-    approveCalldata = encodeFunctionData({
+  
+  const approveCalldata = encodeFunctionData({
       abi: erc20Abi,
       functionName: "approve",
-      args: [crowdfundingContractAddress, totalRecurringAmount],
-    });
-  } else {
-    approveCalldata = encodeFunctionData({
-      abi: erc20Abi,
-      functionName: "approve",
-      args: [crowdfundingContractAddress, bigIntAmount],
-    });
-  }
+      args: [crowdfundingContractAddress, amountToApprove],
+  });
+  
 
   // Calculate calldata depending if it's a single or recurring donation
   let donationCalldata;
@@ -77,13 +71,13 @@ export const POST = async (req: NextRequest) => {
   // Prepare Transactions
   const transactions = [
     {
-      chainId: base.id, // Base Mainnet 8453 
+      chainId: `${base.id}`, // Base Mainnet 8453 
       to: tokenAddress,
       data: approveCalldata,
       value: BigInt(0).toString(),
     },
     {
-      chainId: base.id, // Base Mainnet 8453
+      chainId: `${base.id}`, // Base Mainnet 8453
       to: crowdfundingContractAddress,
       data: donationCalldata,
       value: BigInt(0).toString(),
