@@ -5,8 +5,9 @@ import { NextRequest, NextResponse } from "next/server";
 export const GET = async (req: NextRequest) => {
   const evmActionMetadata: EVMAction = {
     title: "Crowdfunding EVM Action",
-    description: "This is a sample EVM Action for donating in a crowdfunding campaign.",
-    image: "https://placehold.co/955x500",
+    description:
+      "This is a sample EVM Action for donating in a crowdfunding campaign.",
+    image: `${appURL()}/landing.png`,
     links: [
       {
         targetUrl: `${appURL()}/api/tx`,
