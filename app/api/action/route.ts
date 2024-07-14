@@ -17,7 +17,6 @@ export const GET = async (req: NextRequest) => {
   targetUrl.searchParams.set("donationTimes", donationTimes!);
   targetUrl.searchParams.set("donationIntervals", donationIntervals!);
 
-
   const evmActionMetadata: EVMAction = {
     title: "Crowdfunding EVM Action",
     description:
@@ -25,7 +24,7 @@ export const GET = async (req: NextRequest) => {
     image: `${appURL()}/landing.png`,
     links: [
       {
-        targetUrl: `${appURL()}/api/tx`,
+        targetUrl: targetUrl.toString(),
         postUrl: `${appURL()}/tx-success`, // this will be a GET HTTP call
         label: "Tx",
         type: ActionLinkType.TX,
