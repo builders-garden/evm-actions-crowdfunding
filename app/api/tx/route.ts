@@ -2,7 +2,10 @@ import { erc20Abi } from "@/lib/contracts/erc20abi";
 import { base, baseSepolia } from "viem/chains";
 import { NextRequest, NextResponse } from "next/server";
 import { createPublicClient, encodeFunctionData, http, parseUnits } from "viem";
-import { CROWDFUNDING_CONTRACT_ADDRESS, STANDARD_TOKEN_ADDRESS } from "@/lib/constants";
+import {
+  CROWDFUNDING_CONTRACT_ADDRESS,
+  STANDARD_TOKEN_ADDRESS,
+} from "@/lib/constants";
 import { crowdfundingAbi } from "@/lib/contracts/crowdfundingAbi";
 
 export const POST = async (req: NextRequest) => {
@@ -11,17 +14,17 @@ export const POST = async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
 
   // get query params from the URL
-  const isRecurring = searchParams.get('isRecurring');
-  const campaignId = searchParams.get('campaignId');
-  const depositAmount = searchParams.get('depositAmount');
-  const donationTimes = searchParams.get('donationTimes');
-  const donationIntervals = searchParams.get('donationIntervals');
+  const isRecurring = searchParams.get("isRecurring");
+  const campaignId = searchParams.get("campaignId");
+  const depositAmount = searchParams.get("depositAmount");
+  const donationTimes = searchParams.get("donationTimes");
+  const donationIntervals = searchParams.get("donationIntervals");
 
   // Get token decimals
-  const publicClient = createPublicClient({ 
+  const publicClient = createPublicClient({
     chain: base,
-    transport: http()
-  })
+    transport: http(),
+  });
 
   // Get the token address
   const tokenAddress = STANDARD_TOKEN_ADDRESS;
@@ -38,27 +41,33 @@ export const POST = async (req: NextRequest) => {
     });
     isNativeToken = false;
   }
+
   // Prepare amount to transfer
   const bigIntAmount = BigInt(parseUnits(depositAmount as string, decimals));
   const totalRecurringAmount = bigIntAmount * BigInt(donationTimes as string);
   const amountToApprove = isRecurring ? totalRecurringAmount : bigIntAmount;
 
   // Calculate calldata for token approval
-  
+
   const approveCalldata = encodeFunctionData({
-      abi: erc20Abi,
-      functionName: "approve",
-      args: [crowdfundingContractAddress, amountToApprove],
+    abi: erc20Abi,
+    functionName: "approve",
+    args: [crowdfundingContractAddress, amountToApprove],
   });
-  
 
   // Calculate calldata depending if it's a single or recurring donation
   let donationCalldata;
-  if(isRecurring) {
+  if (isRecurring) {
     donationCalldata = encodeFunctionData({
       abi: crowdfundingAbi,
       functionName: "depositFundsRecurring",
-      args: [address, campaignId, bigIntAmount, donationTimes, donationIntervals],
+      args: [
+        address,
+        campaignId,
+        bigIntAmount,
+        donationTimes,
+        donationIntervals,
+      ],
     });
   } else {
     donationCalldata = encodeFunctionData({
@@ -71,7 +80,7 @@ export const POST = async (req: NextRequest) => {
   // Prepare Transactions
   const transactions = [
     {
-      chainId: `${base.id}`, // Base Mainnet 8453 
+      chainId: `${base.id}`, // Base Mainnet 8453
       to: tokenAddress,
       data: approveCalldata,
       value: BigInt(0).toString(),
