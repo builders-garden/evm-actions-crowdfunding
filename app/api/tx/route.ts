@@ -10,7 +10,7 @@ export const POST = async (req: NextRequest) => {
   const { address } = body;
   const { searchParams } = new URL(req.url);
 
-  // get the tokenAddress, toAddress, amount and chainId from the urls 
+  // get query params from the URL
   const isRecurring = searchParams.get('isRecurring');
   const campaignId = searchParams.get('campaignId');
   const depositAmount = searchParams.get('depositAmount');
